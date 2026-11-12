@@ -37,17 +37,14 @@
       const list = document.querySelector("#list");
 
       function money(amount) {
-        return amount.toLocaleString("en-US", {
+        const cents = Math.round(Number(amount) * 100);
+        const hasCents = cents % 100 !== 0;
+        return (cents / 100).toLocaleString("en-US", {
           style: "currency",
           currency: "USD",
-          maximumFractionDigits: 0,
+          minimumFractionDigits: hasCents ? 2 : 0,
+          maximumFractionDigits: hasCents ? 2 : 0,
         });
-      }
-
-      function range(low, high) {
-        const left = money(low);
-        const right = money(high);
-        return left === right ? left : `${left}–${right}`;
       }
 
       function addLine(parent, className, text) {
@@ -102,7 +99,7 @@
               addLine(
                 card,
                 "line",
-                `${section.title}: ${range(section.lowTotal, section.highTotal)} (${range(section.lowPer, section.highPer)} ${section.perLabel})`
+                `${section.title}: ${money(section.total)} (${money(section.rate)} ${section.perLabel})`
               );
             }
             if (lead.privateNotes && lead.privateNotes.length) {

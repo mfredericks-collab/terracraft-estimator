@@ -43,6 +43,7 @@ test("public files do not mention internal pricing", () => {
     .map((name) => fs.readFileSync(path.join(dir, name), "utf8").toLowerCase())
     .join("\n");
   assert.equal(client.includes("margin"), false);
+  assert.match(client, /larger jobs cost less per square foot/);
   const page = fs.readFileSync(path.join(dir, "index.html"), "utf8");
   assert.match(page, /<title>UQuote/);
   assert.match(page, /<h1>UQuote<\/h1>/);
@@ -57,8 +58,8 @@ test("quote and lead APIs hide the cost stack", async () => {
       wall: { lengthFt: 40, heightFt: 3.5 },
     });
     assert.equal(quote.status, 200);
-    assert.equal(quote.json.quote.sections[0].lowPer, 58);
-    assert.equal(quote.json.quote.sections[0].highPer, 78);
+    assert.equal(quote.json.quote.sections[0].rate, 97.86);
+    assert.equal(quote.json.quote.sections[0].total, 13700.4);
     const body = JSON.stringify(quote.json).toLowerCase();
     assert.equal(body.includes("break-even"), false);
     assert.equal(body.includes("geogrid"), false);
@@ -73,15 +74,16 @@ test("quote and lead APIs hide the cost stack", async () => {
       city: "Bend",
     });
     assert.equal(saved.status, 201);
-    assert.equal(saved.json.quote.sections[0].lowTotal, 8120);
+    assert.equal(saved.json.quote.sections[0].total, 13700.4);
     assert.equal(JSON.stringify(saved.json).toLowerCase().includes("break-even"), false);
 
     const stored = JSON.parse(fs.readFileSync(app.leadsPath, "utf8"));
     assert.equal(stored.length, 1);
     assert.equal(stored[0].contact.city, "Bend");
     assert.equal(stored[0].inputs.wall.lengthFt, 40);
-    assert.ok(stored[0].privateNotes.some((note) => note.includes("Break-even")));
-    assert.equal(stored[0].quote.sections[0].highPer, 78);
+    assert.deepEqual(stored[0].privateNotes, ["Taller-wall price is included."]);
+    assert.equal(JSON.stringify(stored).toLowerCase().includes("break-even"), false);
+    assert.equal(stored[0].quote.sections[0].rate, 97.86);
 
     const hidden = await fetch(`${app.base}/api/leads`);
     assert.equal(hidden.status, 404);
@@ -108,7 +110,8 @@ test("admin flag lists saved leads", async () => {
     assert.equal(leads.status, 200);
     const json = await leads.json();
     assert.equal(json.leads[0].contact.email, "avery@example.com");
-    assert.equal(json.leads[0].quote.sections[0].lowTotal, 10000);
+    assert.equal(json.leads[0].quote.sections[0].rate, 32.5);
+    assert.equal(json.leads[0].quote.sections[0].total, 13000);
     const page = await fetch(`${app.base}/admin`);
     assert.equal(page.status, 200);
     const html = await page.text();
