@@ -1,6 +1,6 @@
 # Terracraft estimator
 
-A prospect opens one page, enters measurements for a paver patio, a retaining wall, or both, and sees an installed price range. The short form saves their contact details, the measurements, and the range they were shown.
+A prospect opens one page, enters measurements for a paver patio, a retaining wall, or both, and sees an installed price. The rate steps down as the job gets larger. The short form saves their contact details, the measurements, and the price they were shown.
 
 ## Run
 

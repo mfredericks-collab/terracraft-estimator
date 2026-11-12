@@ -17,17 +17,14 @@ let requestId = 0;
 let latestQuote = null;
 
 function money(amount) {
-  return amount.toLocaleString("en-US", {
+  const cents = Math.round(Number(amount) * 100);
+  const hasCents = cents % 100 !== 0;
+  return (cents / 100).toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-    maximumFractionDigits: 0,
+    minimumFractionDigits: hasCents ? 2 : 0,
+    maximumFractionDigits: hasCents ? 2 : 0,
   });
-}
-
-function range(low, high) {
-  const left = money(low);
-  const right = money(high);
-  return left === right ? left : `${left}–${right}`;
 }
 
 function selected(name) {
@@ -90,10 +87,10 @@ function renderQuote(quote) {
     qty.textContent = item.quantityLabel;
     const total = document.createElement("p");
     total.className = "total";
-    total.textContent = range(item.lowTotal, item.highTotal);
+    total.textContent = money(item.total);
     const unit = document.createElement("p");
     unit.className = "unit";
-    unit.textContent = `${range(item.lowPer, item.highPer)} ${item.perLabel}`;
+    unit.textContent = `${money(item.rate)} ${item.perLabel}`;
     card.append(title, qty, total, unit);
     priceEl.append(card);
   }
@@ -105,15 +102,18 @@ function renderQuote(quote) {
     title.textContent = "Project total";
     const total = document.createElement("p");
     total.className = "total";
-    total.textContent = range(quote.combined.lowTotal, quote.combined.highTotal);
+    total.textContent = money(quote.combined.total);
     combined.append(title, total);
     priceEl.append(combined);
   }
 
+  const sizeNote = document.createElement("p");
+  sizeNote.className = "size-note";
+  sizeNote.textContent = "Larger jobs cost less per square foot.";
   const note = document.createElement("p");
   note.className = "disclaimer";
   note.textContent = DISCLAIMER;
-  priceEl.append(note);
+  priceEl.append(sizeNote, note);
   priceEl.hidden = false;
   if (thanksEl.hidden) leadFields.hidden = false;
 }
@@ -183,8 +183,8 @@ form.addEventListener("submit", async (event) => {
     renderQuote(body.quote);
     const name = form.name.value.trim();
     thanksCopy.textContent = name
-      ? `Thanks, ${name}. We saved the range shown above and will be in touch.`
-      : "Thanks. We saved the range shown above and will be in touch.";
+      ? `Thanks, ${name}. We saved the price shown above and will be in touch.`
+      : "Thanks. We saved the price shown above and will be in touch.";
     for (const el of form.elements) {
       if (el.id !== "another") el.disabled = true;
     }
