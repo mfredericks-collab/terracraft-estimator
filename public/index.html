@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terracraft — Patio and wall estimate</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <header class="intro">
+        <p class="brand">Terracraft</p>
+        <h1>Price your patio or wall</h1>
+        <p class="lede">
+          Enter a few measurements and see an installed price range. A site visit
+          comes before any work is booked.
+        </p>
+      </header>
+
+      <form id="estimate" class="sheet" novalidate>
+        <fieldset class="block">
+          <legend>What are you planning?</legend>
+          <div class="choices">
+            <label class="choice">
+              <input type="radio" name="project" value="pavers" />
+              <span>Paver patio</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="project" value="wall" />
+              <span>Retaining wall</span>
+            </label>
+            <label class="choice">
+              <input type="radio" name="project" value="both" />
+              <span>Both</span>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset id="paver-fields" class="block" hidden>
+          <legend>Paver patio</legend>
+          <div class="field">
+            <label for="area">Area (square feet)</label>
+            <input id="area" name="areaSf" type="number" inputmode="decimal" min="1" max="20000" step="any" />
+            <p class="hint">The finished paver area.</p>
+          </div>
+          <div class="field">
+            <p class="label" id="shape-label">Shape</p>
+            <div class="choices compact" role="radiogroup" aria-labelledby="shape-label">
+              <label class="choice">
+                <input type="radio" name="shape" value="straight" />
+                <span>Straight</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="shape" value="some-cuts" />
+                <span>Some cuts</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="shape" value="curved" />
+                <span>Curved and detailed</span>
+              </label>
+            </div>
+          </div>
+          <div class="field">
+            <p class="label" id="access-label">Access</p>
+            <div class="choices compact" role="radiogroup" aria-labelledby="access-label">
+              <label class="choice">
+                <input type="radio" name="access" value="easy" />
+                <span>Easy</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="access" value="moderate" />
+                <span>Moderate</span>
+              </label>
+              <label class="choice">
+                <input type="radio" name="access" value="tight" />
+                <span>Tight</span>
+              </label>
+            </div>
+            <p class="hint">How easy it is to get to the work area. This is saved with your estimate.</p>
+          </div>
+        </fieldset>
+
+        <fieldset id="wall-fields" class="block" hidden>
+          <legend>Retaining wall</legend>
+          <div class="split">
+            <div class="field">
+              <label for="length">Length (feet)</label>
+              <input id="length" name="lengthFt" type="number" inputmode="decimal" min="0.5" max="500" step="any" />
+              <p class="hint">Along the face of the wall.</p>
+            </div>
+            <div class="field">
+              <label for="height">Visible height (feet)</label>
+              <input id="height" name="heightFt" type="number" inputmode="decimal" min="0.5" max="20" step="any" />
+              <p class="hint">The height you can see above the ground.</p>
+            </div>
+          </div>
+        </fieldset>
+
+        <section id="price" class="price" hidden aria-live="polite"></section>
+
+        <p id="form-error" class="form-error" hidden role="alert"></p>
+
+        <fieldset id="lead-fields" class="block" hidden>
+          <legend>Send this estimate</legend>
+          <p class="hint lead-intro">Leave your name and a phone number or email. We’ll follow up about a site visit.</p>
+          <div class="split">
+            <div class="field">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" autocomplete="name" maxlength="80" required />
+            </div>
+            <div class="field">
+              <label for="city">City</label>
+              <input id="city" name="city" type="text" autocomplete="address-level2" maxlength="80" required />
+            </div>
+          </div>
+          <div class="split">
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="40" />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" autocomplete="email" maxlength="120" />
+            </div>
+          </div>
+          <button id="submit" class="submit" type="submit">Send my estimate</button>
+        </fieldset>
+
+        <section id="thanks" class="thanks" hidden>
+          <h2>Estimate saved</h2>
+          <p id="thanks-copy"></p>
+          <button id="another" class="text-button" type="button">Start another</button>
+        </section>
+      </form>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>

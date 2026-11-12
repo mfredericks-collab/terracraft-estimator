@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Terracraft leads</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background: #f4f0e8;
+        color: #241c16;
+      }
+      main { width: min(880px, calc(100% - 32px)); margin: 32px auto 64px; }
+      h1 { font-size: 1.8rem; margin-bottom: 0.25rem; }
+      p { color: #5c534a; }
+      article {
+        margin-top: 16px;
+        padding: 16px 18px;
+        background: #fff;
+        border: 1px solid #e4d9cb;
+        border-radius: 14px;
+      }
+      h2 { margin: 0 0 6px; font-size: 1.15rem; }
+      .meta, .line { margin: 4px 0; }
+      .notes { margin: 8px 0 0; padding-left: 18px; }
+      .private { color: #7c3e27; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Leads</h1>
+      <p>Each lead stores the measurements and the installed range the prospect was shown.</p>
+      <div id="list"></div>
+    </main>
+    <script>
+      const list = document.querySelector("#list");
+
+      function money(amount) {
+        return amount.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0,
+        });
+      }
+
+      function range(low, high) {
+        const left = money(low);
+        const right = money(high);
+        return left === right ? left : `${left}–${right}`;
+      }
+
+      function addLine(parent, className, text) {
+        const p = document.createElement("p");
+        p.className = className;
+        p.textContent = text;
+        parent.append(p);
+      }
+
+      fetch("/api/leads")
+        .then((response) => {
+          if (!response.ok) throw new Error("unavailable");
+          return response.json();
+        })
+        .then((body) => {
+          const leads = body.leads || [];
+          if (!leads.length) {
+            addLine(list, "line", "No leads yet.");
+            return;
+          }
+          for (const lead of leads) {
+            const card = document.createElement("article");
+            const when = new Date(lead.createdAt).toLocaleString();
+            const contact = lead.contact || {};
+            addLine(card, "meta", when);
+            const title = document.createElement("h2");
+            title.textContent = contact.name || "Lead";
+            card.append(title);
+            addLine(
+              card,
+              "line",
+              [contact.phone, contact.email, contact.city].filter(Boolean).join(" · ")
+            );
+            const inputs = lead.inputs || {};
+            if (inputs.pavers) {
+              const paver = inputs.pavers;
+              addLine(
+                card,
+                "line",
+                `Pavers: ${paver.areaSf} sq ft · ${paver.shapeLabel} · ${paver.accessLabel} access`
+              );
+            }
+            if (inputs.wall) {
+              const wall = inputs.wall;
+              addLine(
+                card,
+                "line",
+                `Wall: ${wall.lengthFt} ft long · ${wall.heightFt} ft visible · ${wall.faceSf} face sq ft`
+              );
+            }
+            for (const section of (lead.quote && lead.quote.sections) || []) {
+              addLine(
+                card,
+                "line",
+                `${section.title}: ${range(section.lowTotal, section.highTotal)} (${range(section.lowPer, section.highPer)} ${section.perLabel})`
+              );
+            }
+            if (lead.privateNotes && lead.privateNotes.length) {
+              const notes = document.createElement("ul");
+              notes.className = "notes private";
+              for (const note of lead.privateNotes) {
+                const item = document.createElement("li");
+                item.textContent = note;
+                notes.append(item);
+              }
+              card.append(notes);
+            }
+            list.append(card);
+          }
+        })
+        .catch(() => {
+          addLine(list, "line", "The lead list is unavailable.");
+        });
+    </script>
+  </body>
+</html>
