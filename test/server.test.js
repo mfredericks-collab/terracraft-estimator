@@ -43,6 +43,10 @@ test("public files do not mention internal pricing", () => {
     .map((name) => fs.readFileSync(path.join(dir, name), "utf8").toLowerCase())
     .join("\n");
   assert.equal(client.includes("margin"), false);
+  const page = fs.readFileSync(path.join(dir, "index.html"), "utf8");
+  assert.match(page, /<title>UQuote/);
+  assert.match(page, /<h1>UQuote<\/h1>/);
+  assert.equal(page.toLowerCase().includes("terracraft"), false);
 });
 
 test("quote and lead APIs hide the cost stack", async () => {
